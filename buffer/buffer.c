@@ -1,35 +1,29 @@
 #include "buffer.h"
 
-void buffer_init(buffer_t *b, char *data, uint8_t size)
-{
-    b->tail = 0;
-    b->head = 0;
-    b->mask = ~size;
-    b->data = data;
-}
-
-int buffer_put(buffer_t *b, char c)
+int buffer_put(char c, BUFFER *b)
 {
     uint8_t mask = b->mask;
     uint8_t head = b->head;
+    uint8_t headnext = (head+1) & mask;
     uint8_t tail = b->tail;
-    uint8_t rv = ((tail+1)==head) ? BUFFER_FULL : 0;
+    uint8_t rv = (headnext==tail) ? BUFFER_FULL : 0;
     if(!rv) {
-        b->data[tail]=c;
-        b->tail = (++tail) & mask;
+        b->data[head]=c;
+        b->head = headnext;
     }
     return rv;
 }
 
-int buffer_get(buffer_t *b)
+int buffer_get(BUFFER *b)
 {
     uint8_t mask = b->mask;
     uint8_t head = b->head;
     uint8_t tail = b->tail;
+    uint8_t tailnext = (tail+1) & mask;
     int rv = (tail == head) ? BUFFER_EMPTY : 0;
     if (!rv) {
-        rv = (unsigned char) b->data[head];
-        b->head = (++head) & mask;
+        rv = b->data[tail] & 0xFF;
+        b->tail = tailnext;
     }
-    return rv;
+    return rv;    
 }

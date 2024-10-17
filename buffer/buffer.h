@@ -5,15 +5,24 @@
 #define BUFFER_EMPTY -1
 #define BUFFER_FULL   1
 
-typedef struct {
+#define BUFFER_SETUP(DATA, SIZE)      \
+    {                                 \
+        DATA,                         \
+	~SIZE & 0xFF,                 \
+	0,                            \
+	0                             \
+    }
+
+struct __buffer {
+    char *data;
+    uint8_t mask;
     uint8_t tail;
     uint8_t head;
-    uint8_t mask;
-    char *data;
-} buffer_t;
+};
 
-void buffer_init(buffer_t *b, char *data, uint8_t size);
-int buffer_put(buffer_t *b, char c);
-int buffer_get(buffer_t *b);
+typedef struct __buffer BUFFER;
+
+int buffer_put(char c, BUFFER*);
+int buffer_get(BUFFER*);
 
 #endif
