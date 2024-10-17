@@ -28,8 +28,8 @@ int buffer_get(buffer_t *b)
     uint8_t tail = b->tail;
     int rv = (tail == head) ? BUFFER_EMPTY : 0;
     if (!rv) {
-        rv = b->data[head];
+        rv = (unsigned char) b->data[head];
         b->head = (++head) & mask;
     }
-    return (unsigned char)rv;    
+    return rv;
 }
