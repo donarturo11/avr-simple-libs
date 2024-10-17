@@ -1,13 +1,8 @@
-PROJECT_NAME = test_uart
+PROJECT_NAME = buffer_test
 CONFIG ?= attiny85
-BUFFERED_IO ?= 1
 DEFINITIONS = 
 
-#DEFINITIONS += -DSWUART
 BAUD_RATE ?= 19200
-#ifeq ($(BUFFERED_IO), 1)
-#DEFINITIONS += -DBUFFERED_IO
-#endif
 include config/$(CONFIG)/Makefile.mk
 FIRMWARENAME = $(PROJECT_NAME)-$(MCU)
 CC = avr-gcc
@@ -15,10 +10,6 @@ OBJCOPY = avr-objcopy
 DUDE = avrdude
 PROGRAMMER ?= siprog
 DUDEFLAGS = -v -p $(MCU) -c $(PROGRAMMER)
-ifeq ($(PROGRAMMER), siprog)
-DUDEFLAGS += -b 19200
-#DUDEFLAGS += -P /dev/ttyS0
-endif
 
 CFLAGS = -Wall -Os -I. -mmcu=$(MCU) -DF_CPU=$(F_CPU)
 CFLAGS += -I./config/$(CONFIG)/
@@ -26,7 +17,6 @@ CFLAGS += $(DEFINITIONS)
 OBJFLAGS = -j .text -j .data  
 OBJECTS = main.o
 OBJECTS += buffer.o
-#OBJECTS += io.o
 
 all: $(FIRMWARENAME).hex $(FIRMWARENAME).bin $(FIRMWARENAME).asm
 
