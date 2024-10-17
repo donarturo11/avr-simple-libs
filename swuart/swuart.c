@@ -2,28 +2,27 @@
 #include <avr/io.h>
 #include <util/delay_basic.h>
 #include "swuart_config.h"
+
 void SWUART_delay()
 {
     _delay_loop_1(BAUD_DELAY);
 }
 
-int SWUART_put(char c)
+int SWUART_put(char byte)
 {
     UART_DDR |= TXMASK;
-    uint16_t frame = 0;
-    for (uint8_t i=0; i<STOP_BITS; ++i) {
-	frame |= 1<<i;
-    }
-    frame <<= 9;
-    frame |= (c << 1);
+    UART_PORT &= ~TXMASK;
+    uint8_t bitcnt = 1+8+STOP_BITS;
     tx_loop:
-        if (frame & 1) UART_PORT |= TXMASK;
-        else UART_PORT &= ~TXMASK;
+	SWUART_delay();
         SWUART_delay();
-        SWUART_delay();
-        frame >>= 1;
-        if (frame) {
-            goto tx_loop;
+	if (byte & 1)
+	    UART_PORT |= TXMASK;
+	else
+	    UART_PORT &= ~TXMASK;
+        byte = (byte>>1) | 0x80;
+        if (--bitcnt) {
+	    goto tx_loop;
         }
     return 0;
 }
